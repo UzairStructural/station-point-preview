@@ -655,7 +655,7 @@ html.dlg-open { overflow: hidden; }
 }
 /* ======================================================================================================================
    ROUND 6 (owner r6-site): two doors, the pilot badge and the concept chip, the 02 option switch, the pilot row of What
-   you get, ServiceSection, the VR and drone loops, the founder card, the bridge band, builders.html, the pilot form,
+   you get, ServiceSection, the VR and drone loops, the bridge band, builders.html, the pilot form,
    the footer, the sticky CTA by audience. No scroll-driven motion: every change here is a click or an instant state.
    ====================================================================================================================== */
 
@@ -798,7 +798,7 @@ a.pb:hover { background: var(--slate-tint); }
 .role-copy .role-line + .mono-link { margin-top: 18px; }
 .role-fig { position: relative; }
 
-/* ---------- founder card ---------- */
+/* ---------- fc card (unused) ---------- */
 .fc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; padding: clamp(24px, 3vw, 40px); background: var(--surface); border: 1px solid var(--card-border); }
 .fc-nophoto { grid-template-columns: minmax(0, 1fr); }
 .fc-photo { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; }
