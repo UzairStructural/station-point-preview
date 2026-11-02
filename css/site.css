@@ -1,0 +1,989 @@
+/* One deliberate light look (the theme): warm paper ground, ink type, one terracotta accent.
+   Layout: 12-column grid inside a 1280 px measure. The hero wipe is full-bleed: the copy sits in the left 40% over a warm
+   scrim and the drawing meets the render off to the right. Sections meet with hairlines and air, never with gradients.
+   Every colour is set explicitly below. No scroll-driven motion: the nav is always opaque, and the phone CTA bar appears or
+   disappears as an instant state change. */
+:root {
+  color-scheme: light;
+  /* round 6 tokens (ROUND6_TEAM_PROMPT.md Part B 2) */
+  --bg: #F0ECE9;          /* paper (also the hero drawing's paper) */
+  --surface: #F8F6F4;     /* cards, chips, the selected pill */
+  --field: #FDFCFB;       /* form fields */
+  --ink: #1A1714;         /* text */
+  --ink-2: #242420;       /* text-2: secondary text, outlines, icons */
+  --muted: #5E5751;       /* subheads and captions */
+  --cta: #A6583D;         /* the ONLY action colour: filled buttons */
+  --cta-ink: #8C4D35;     /* links, eyebrows, the button hover (5.5:1 on the paper) */
+  --timber: #7B674E;
+  --timber-2: #C3AF9A;
+  --line: #BFB09C;
+  --line-2: #C2B9B0;
+  --card-border: #DBD5CF;
+  --dot-off: #8C847D;     /* inactive carousel dot (3.1:1 on the paper) */
+  --check-border: #6F6862;
+  --slate: #3D5A6C;       /* data, eyebrows and badges only, never a button, always with a label or icon (6.2:1) */
+  --slate-tint: #E3E8EA;
+  /* the names the earlier rules use, mapped onto the tokens */
+  --accent: var(--cta);
+  --link: var(--cta-ink);
+  --placeholder: #5E5751; /* input placeholder (7.0:1 on the field) */
+  --hair: var(--card-border);
+  --hair-2: var(--line-2);
+  --frame: var(--timber-2);
+  --nav-line: rgba(26, 23, 20, .08);
+  --white: #FFFFFF;
+  --night: #1A1714;       /* lightbox ground */
+  --pause: rgba(26, 23, 20, .7);
+
+  --display: "Inter Tight", "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --hand: "Architects Daughter", "Segoe Print", "Bradley Hand", cursive;
+
+  --gut: clamp(16px, 5vw, 80px);
+  --cg: clamp(12px, 1.9vw, 24px);
+  --sec: clamp(72px, 8.4vw, 120px);
+  --head-h: 86px;
+  /* r6-qa (rulings addendum, wide monitors): the measure grows on big screens (1520 px from 1680, 1680 px from 2200) */
+  --wrap: 1280px;
+}
+@media (min-width: 1680px) { :root { --wrap: 1520px; --gut: clamp(80px, 4.4vw, 120px); --cg: clamp(24px, 1.4vw, 36px); --sec: clamp(120px, 7vw, 168px); } }
+@media (min-width: 2200px) { :root { --wrap: 1680px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+/* r5: a jump to a section (nav links, the menu, the upload CTA) lands with the section's top 1 px under the nav: the nav is
+   87 px (70 px row + 14 px top + 2 px rule + 1 px line), so nothing of the section above (often the hero image) can show as
+   a thin band under the bar; each section's own top padding gives the air. (Was 100 px: 13 px of the hero showed.) */
+html { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; scroll-padding-top: calc(86px + env(safe-area-inset-top, 0px)); }
+/* r5: the deployed page pads the root by the phone's safe-area insets exactly as the Artifact host does (the same value, so
+   the two never add up), so the sticky nav (top: env(safe-area-inset-top)) starts below a notch in both outputs */
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility; overflow-x: clip;
+}
+main { overflow-x: clip; }
+img, video { max-width: 100%; display: block; }
+picture { display: block; }
+a { color: var(--link); text-decoration: none; }
+button { font: inherit; color: inherit; }
+p, h1, h2, h3, figure, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+::selection { background: #E4D3C8; color: var(--ink); }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 16px; top: -60px; z-index: 100; background: var(--ink); color: var(--surface); padding: 10px 14px; font: 500 14px var(--body); }
+.skip:focus { top: calc(12px + env(safe-area-inset-top, 0px)); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+.wrap { width: 100%; max-width: calc(var(--wrap) + 2 * var(--gut)); margin-inline: auto; padding-inline: var(--gut); }
+
+/* ---------- type ---------- */
+.h1 {
+  font: 700 clamp(42px, 6vw, 88px)/0.97 var(--display); letter-spacing: -0.034em; word-spacing: 0.03em; color: var(--ink);
+  margin: 0 0 0 -0.04em;
+}
+.h2 { font: 700 clamp(36px, 4.6vw, 66px)/1.02 var(--display); letter-spacing: -0.03em; word-spacing: 0.03em; color: var(--ink); text-wrap: balance; }
+.h3 { font: 700 clamp(22px, 2.2vw, 30px)/1.12 var(--display); letter-spacing: -0.012em; color: var(--ink); text-wrap: balance; }
+.sub { font: 400 clamp(17px, 1.3vw, 19px)/1.5 var(--body); color: var(--muted); margin-top: 18px; max-width: 34em; text-wrap: pretty; }
+/* r5-publish (item 5): JetBrains Mono is kept only for the uppercase eyebrows, the DRAWING / RENDER tags, the hint pills and
+   the film's 1:10 timecode; captions, descriptions, links and form lines are Inter */
+.cap { font: 400 14px/1.5 var(--body); color: var(--muted); margin-top: 12px; text-wrap: pretty; }
+/* r6: sentence case everywhere, the eyebrows included (no uppercase transform); mono stays for the eyebrow line */
+.marker { font: 500 12.5px/1.2 var(--mono); letter-spacing: 0.01em; color: var(--muted); white-space: nowrap; }
+.marker-top { margin-bottom: 22px; color: var(--cta-ink); }
+
+/* ---------- header: sticky on tablets and desktop (phones: in the flow, see the 767 px block), always opaque paper with a
+   hairline (no state change on scroll) ---------- */
+/* r5 (the strip under the nav, seen on a real phone): the Artifact viewer pads :root by the phone's safe-area inset and the
+   nav sticks that far down (top: env(safe-area-inset-top)), so the band between the top of the frame and the nav was open
+   and the hero scrolled through it. The nav now paints its own paper up through that band (::before), overlapping itself by
+   1 px and reaching 2 px past the top of the frame, so no sub-pixel seam can open even where the frame starts on a
+   fractional device pixel (a 2.625x phone). Where the inset is 0 (a normal browser) nothing visible changes. */
+.site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; background: var(--bg); padding-top: 14px; border-bottom: 1px solid var(--nav-line); }
+.site-head::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: calc(100% - 1px); height: calc(env(safe-area-inset-top, 0px) + 3px);
+  background: var(--bg); pointer-events: none;
+}
+.rule { height: 2px; background: var(--accent); }
+.head-row { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+.wordmark {
+  font: 700 18px/1 var(--display); letter-spacing: 0.26em; margin-right: -0.26em; text-transform: uppercase;
+  color: var(--ink); white-space: nowrap;
+  display: inline-flex; align-items: center; min-height: 44px;   /* r6-qa: a 44 px tap target */
+}
+.nav { display: flex; align-items: center; }
+.nav-list { display: flex; gap: clamp(22px, 2.6vw, 40px); }
+.nav a { font: 400 15px/1 var(--body); color: var(--ink); padding: 8px 0; display: inline-flex; align-items: center; min-height: 44px; }   /* r6-qa: 44 px tap targets (touch tablets)*/
+.nav a:hover { color: var(--link); }
+.nav-div { width: 1px; height: 28px; background: var(--hair-2); margin-inline: clamp(22px, 2.6vw, 40px); }
+.nav .nav-cta, .nav-cta {
+  /* r6-publish (review fix 5): Part B step 3, button "Request a pilot": a compact solid #A6583D button, white text (5.1:1),
+     about 40 px high (44 px on touch screens), cta-ink on hover */
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: 0;
+  background: var(--accent); color: var(--white); font: 500 15px/1 var(--body); white-space: nowrap;
+}
+.nav .nav-cta:hover, .nav-cta:hover { background: var(--cta-ink); color: var(--white); }
+.nav .nav-cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+@media (pointer: coarse) { .nav .nav-cta { min-height: 44px; } }
+.menu-btn { display: none; width: 44px; height: 44px; margin-right: -10px; border: 0; background: transparent; cursor: pointer; place-items: center; }
+.menu-ico, .menu-ico::before { display: block; width: 22px; height: 1.5px; background: var(--ink); position: relative; transition: transform .15s; }
+.menu-ico::before { content: ""; position: absolute; top: 7px; left: 0; }
+.menu-ico { transform: translateY(-3.5px); }
+.menu-btn[aria-expanded="true"] .menu-ico { transform: translateY(0) rotate(45deg); }
+.menu-btn[aria-expanded="true"] .menu-ico::before { top: 0; transform: rotate(-90deg); }
+.menu { background: var(--bg); border-top: 1px solid var(--hair); }
+.menu ul { padding-block: 8px 20px; }
+.menu a { display: block; padding: 16px 0; border-bottom: 1px solid var(--hair); font: 700 22px/1.1 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+.menu li:last-child a { color: var(--link); }
+
+/* ---------- the CTA (r5-publish, item 1): ONE solid button, the only filled control: #A6583D, no border, Inter 500 16 px in
+   white (5.1:1), the arrow inline on the right; hover #96492F (6.2:1). It opens the file picker (site.js). ---------- */
+.upload {
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; margin-top: 36px;
+  padding: 0 26px; border: 0; border-radius: 0; background: var(--accent); color: var(--white); cursor: pointer;
+  font: 500 16px/1.2 var(--body); letter-spacing: 0; text-align: center; -webkit-tap-highlight-color: transparent;
+}
+.upload-txt { min-width: 0; color: var(--white); white-space: nowrap; }
+.upload-go { display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; }
+.upload-go svg { width: 20px; height: 20px; fill: none; stroke: var(--white); stroke-width: 1.7; transition: transform .15s; }
+.upload:hover, .upload:active { background: var(--cta-ink); }
+.upload:hover .upload-go svg { transform: translateX(3px); }
+.upload:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.upload[disabled] { cursor: not-allowed; background: var(--surface); box-shadow: inset 0 0 0 1px var(--hair-2); }
+.upload[disabled] .upload-txt { color: var(--muted); }
+.upload[disabled] .upload-go svg { stroke: var(--muted); transform: none; }
+.upload[aria-busy="true"] { cursor: progress; }
+.mono-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-block: 12px; margin-top: 12px; font: 500 15px/1.4 var(--body); color: var(--link); }
+.mono-link .arr { color: var(--link); transition: transform .15s; }
+.mono-link:hover .arr { transform: translateX(3px); }
+
+/* ---------- hero: drawing -> render wipe ---------- */
+.hero { position: relative; }
+.hero-copy { padding-block: 40px 48px; }
+.lede { font: 400 clamp(17px, 1.35vw, 20px)/1.5 var(--body); color: var(--muted); margin-top: 26px; max-width: 24em; text-wrap: pretty; }
+/* r5-polish-1 (item 20): who it is for, named once above the headline (phones: between the image and the headline) */
+.hero-for { margin-bottom: 18px; }
+/* r6-qa: 'See a sample project' always on its own line under the button (on wide screens the two sat 4 px apart on one line) */
+.hero-copy > .mono-link { display: flex; width: max-content; max-width: 100%; }
+
+.cmp { position: relative; overflow: hidden; isolation: isolate; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; --x: 50%; }
+.hero-media { background: var(--bg); container-type: size; --z: 1; --fl: 0; --ty: 0; }
+.js .hero-media { --x: 100%; }
+@media (prefers-reduced-motion: reduce) { .js .hero-media { --x: 55%; } }
+/* each layer is the size of the box; inside it, one frame holds the image and its overlay at the image's own aspect, so the
+   drawing, its notes, the render and the dimensions stay registered. Frame = cover fit x zoom --z, its left edge at --fl of
+   the box width (desktop: the house sits right of the copy) or centred (phones), raised by --ty of its height. */
+.hero-media .clip { position: absolute; inset: 0; overflow: hidden; }
+.hero-media .frame { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+@supports (width: 1cqw) {
+  .hero-media .frame {
+    width: calc(max(100cqw, 133.334cqh) * var(--z)); height: calc(max(75cqw, 100cqh) * var(--z));
+    left: calc(100cqw * var(--fl)); top: calc(max(75cqw, 100cqh) * var(--z) * var(--ty) * -1);
+  }
+}
+.hero-media .lay, .hero-media .lay img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-media .lay img { object-fit: cover; object-position: left top; }
+/* the drawing melts into the page at its left, top and bottom edges */
+.hero-media .clip-s .frame::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(90deg, #F0ECE9 0%, rgba(240, 236, 233, 0) 9%),
+    linear-gradient(180deg, #F0ECE9 0%, rgba(240, 236, 233, 0) 7%, rgba(240, 236, 233, 0) 90%, #F0ECE9 100%);
+}
+.cmp .clip-n { clip-path: inset(0 calc(100% - var(--x)) 0 0); pointer-events: none; }
+.cmp .clip-r { clip-path: inset(0 0 0 var(--x)); }
+.hero-media .ov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.ov-m { display: none; }
+.ov .d { fill: none; stroke: #1A1714; stroke-width: 2.4; stroke-linecap: square; }
+.ov .dx { fill: none; stroke: #1A1714; stroke-width: 1.6; opacity: .7; }
+.ov .dt { font-family: var(--body); font-weight: 500; fill: #1A1714; letter-spacing: 0; font-feature-settings: 'tnum' 1; }
+/* r5-polish-1 (item 7): on the render each label sits on a small chip (the hint pills' recipe), no outlined text, no halo */
+.ov-r .d, .ov-r .dx { stroke: #F8F6F4; opacity: 1; }
+.ov-r .chip { fill: rgba(26, 23, 20, .7); stroke: none; }
+.ov-r .edge { fill: none; stroke: rgba(26, 23, 20, .34); stroke-width: 4.4; stroke-linecap: square; }
+.ov-r .dt { fill: #F8F6F4; }
+.ov .hn { font-family: var(--hand); fill: #3A332D; letter-spacing: 0.04em; }
+.hero-media .scrim { display: none; position: absolute; inset: 0; pointer-events: none; }
+.cmp-line { position: absolute; top: 0; bottom: 0; left: var(--x); width: 1px; margin-left: -0.5px; background: var(--surface); box-shadow: 0 0 0 0.5px rgba(26, 23, 20, .28); pointer-events: none; z-index: 2; }
+.cmp-handle {
+  position: absolute; z-index: 3; top: 50%; left: var(--x); width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--ink-2); display: grid; place-items: center; cursor: ew-resize;
+  box-shadow: 0 2px 10px rgba(26, 23, 20, .18); touch-action: none;
+}
+.cmp-handle svg { width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 1.6; }
+/* the labels ride with the divide (absolute inside the slider, never sticky or fixed) */
+.cmp-tag {
+  position: absolute; z-index: 2; bottom: 16px; font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink); background: var(--surface); padding: 7px 9px; border: 1px solid var(--hair-2); transition: opacity .2s; pointer-events: none;
+  white-space: nowrap;
+}
+.tag-s { right: calc(100% - var(--x) + 12px); }
+.tag-r { left: calc(var(--x) + 12px); }
+.cmp.no-s .tag-s, .cmp.no-r .tag-r { opacity: 0; }
+.cmp-hint {
+  position: absolute; z-index: 2; left: var(--x); top: calc(50% + 34px); transform: translateX(-50%); pointer-events: none;
+  font: 500 12px/1 var(--mono); letter-spacing: 0.02em; color: var(--white); background: var(--pause); padding: 7px 11px;
+  border-radius: 2px; white-space: nowrap; transition: opacity .45s ease;
+}
+.cmp.dragged .cmp-hint { opacity: 0; }
+
+
+/* ---------- 01-05 strip ---------- */
+.strip { padding-block: 40px 0; }
+.strip .marker-top { margin-bottom: 26px; }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: clamp(28px, 3.4vw, 52px); }
+.step { position: relative; min-width: 0; display: flex; flex-direction: column; }
+.step + .step::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(-0.5 * clamp(28px, 3.4vw, 52px)); width: 1px; background: var(--hair-2); }
+.step-h { display: flex; gap: 0.55em; align-items: baseline; font: 700 clamp(20px, 1.85vw, 27px)/1.1 var(--display); letter-spacing: -0.012em; color: var(--ink); margin-bottom: 18px; white-space: nowrap; }
+.num { color: var(--link); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.step-m { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--hair); }
+.step-m img, .step-m video, .step-m picture { width: 100%; height: 100%; object-fit: cover; }
+.quad { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; background: var(--bg); }
+.quad > * { min-width: 0; min-height: 0; overflow: hidden; }
+.dots { display: none; }
+.step .cap { font-size: 15px; color: var(--ink-2); }
+
+/* living images (muted loops), each with its own pause button: one style everywhere (r5): #1A1714 at 70%, a light icon,
+   a 44 x 44 px tap target */
+.lv-box { position: relative; }
+.lv-box .lv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--hair); }
+.lv-box .still { display: none; position: absolute; inset: 0; }
+.lv-box .still img, .lv-box .still picture { width: 100%; height: 100%; object-fit: cover; }
+.rm .lv-box:not(.user) .lv { display: none; }
+.rm .lv-box:not(.user) .still { display: block; }
+.lv-btn {
+  position: absolute; z-index: 2; right: 10px; bottom: 10px; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--pause); color: var(--white); display: grid; place-items: center; padding: 0;
+}
+.lv-btn:hover { background: rgba(26, 23, 20, .85); }
+.lv-btn svg { width: 15px; height: 15px; fill: var(--white); }
+.lv-btn .i-play { display: none; }
+.lv-box.paused .lv-btn .i-play, .rm .lv-box:not(.user) .lv-btn .i-play { display: block; }
+.lv-box.paused .lv-btn .i-pause, .rm .lv-box:not(.user) .lv-btn .i-pause { display: none; }
+
+/* ---------- sections ---------- */
+.sec { padding-block: var(--sec) 0; }
+.sec-head { margin-bottom: clamp(32px, 4vw, 56px); }
+.row-head { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 22px; }
+.hint { font: 400 13px/1.4 var(--mono); color: var(--muted); }
+
+/* what you get (r5-polish-1, item 3): no collage; the four things as one row of four columns, each under a 1 px #C3AF9A
+   rule, a bold title over one Inter line. The drawing on the render below is the section's first picture. */
+.dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--cg); margin-top: clamp(36px, 4vw, 56px); }
+.dl li { display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px solid var(--frame); min-width: 0; }
+.dl-t { font: 700 clamp(19px, 1.6vw, 23px)/1.2 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+.dl-d { font: 400 16px/1.45 var(--body); color: var(--muted); }
+
+/* r6: the overlay is its own section; the box takes the shown render's own aspect (--ar, from media.json via build.py) */
+.reg-img { position: relative; aspect-ratio: var(--ar, 2400 / 835); overflow: hidden; background: var(--hair); }
+.reg-img picture, .reg-img img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.reg-img img { object-fit: cover; object-position: var(--pos, 50% 50%); }
+.reg-lines { position: absolute; inset: 0; transition: opacity .25s ease; }
+.reg-lines.off { opacity: 0; }
+.reg .cap { margin-top: 10px; }
+/* r5-publish (item 8): the drawing on / off is the rooms' segmented pair ('Render | With drawing', aria-pressed) */
+
+/* 360: one frame in every state (1 px), the ring only for keyboard focus (r6: 'Stand in the room' is its own section) */
+.tour { margin-top: 0; }
+.pano { position: relative; overflow: hidden; aspect-ratio: 11 / 5; background: var(--hair); border: 1px solid var(--frame); cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.pano:focus { outline: none; }
+.pano:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.pano.grab { cursor: grabbing; }
+/* r5-qa (addendum 3): a real 360 viewer. Each room is a rectilinear still made through the viewer's own camera (72 degrees
+   across, straight verticals), shown until the WebGL (or 2D canvas) view is ready and as the last resort; then the canvas
+   draws the room from the equirect, on drag and arrow keys only (no auto-rotation, nothing on scroll). */
+.pano-view { position: absolute; inset: 0; }
+.pano-view picture, .pano-view img { width: 100%; height: 100%; }
+.pano-view img { object-fit: cover; object-position: 50% 50%; pointer-events: none; -webkit-user-drag: none; }
+.pano-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+.pano.cv .pano-cv { display: block; }
+.pano.cv .pano-view { visibility: hidden; }
+.pano.still { cursor: default; }
+.pano-hint {
+  position: absolute; z-index: 2; left: 50%; bottom: 14px; transform: translateX(-50%); pointer-events: none;
+  font: 500 12px/1 var(--mono); letter-spacing: 0.02em; color: var(--white); background: var(--pause); padding: 7px 11px;
+  border-radius: 2px; white-space: nowrap; transition: opacity .45s ease;
+}
+.pano.turned .pano-hint, .pano.still .pano-hint { opacity: 0; }
+/* r5-polish-1 (item 14): one square language for every switch: radius 0, a 1 px #C3AF9A outline (the gap shows the
+   outline colour between the items), the active item filled ink with paper text */
+.rooms { display: inline-flex; gap: 1px; padding: 0; background: var(--frame); border: 1px solid var(--frame); border-radius: 0; }
+.room {
+  min-height: 44px; padding: 8px 18px; border: 0; border-radius: 0; background: var(--bg); cursor: pointer;
+  font: 500 14px/1.1 var(--body); color: var(--muted); white-space: nowrap;
+}
+.room:hover { color: var(--ink); }
+.room[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.room:focus-visible { outline-offset: 2px; }
+
+/* work: at most five pictures; one full-bleed, then singles and a pair, each with a short caption */
+.gal { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cg); row-gap: clamp(36px, 4.4vw, 64px); }
+.g { min-width: 0; }
+.g-tile { position: relative; overflow: hidden; display: block; width: 100%; padding: 0; border: 0; background: var(--hair); cursor: zoom-in; }
+.g-tile picture, .g-tile img { width: 100%; height: 100%; }
+.g-tile img { object-fit: cover; transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+button.g-tile:hover img { transform: scale(1.02); }
+.g-bleed { grid-column: 1 / -1; width: 100vw; margin-left: calc(50% - 50vw); }
+.g-bleed .t-aerial { aspect-ratio: 21 / 9; }
+.g-bleed .t-aerial img { object-position: 50% 58%; }
+.g-bleed .cap { padding-inline: var(--gut); max-width: calc(var(--wrap) + 2 * var(--gut)); margin-inline: auto; }
+/* r5-polish-1 (items 2, 25b): the loop and 'Kitchen and dining' share one row, 7 / 5 columns, the same height, each
+   caption under its picture (no lone caption beside a picture, no half-empty row) */
+.g-loop { grid-column: 1 / span 7; }
+.g-dining, .g-bath { grid-column: 8 / -1; }
+.g-dusk { grid-column: 1 / -1; }
+.g-dusk .t-dusk { aspect-ratio: 21 / 9; }
+.t-loop { aspect-ratio: 16 / 9; cursor: default; }
+.t-loop .lv-btn { right: 14px; bottom: 14px; }
+.g-half { grid-column: span 6; }
+.g-half .g-tile { aspect-ratio: 1 / 1; }
+.t-bath img { object-position: 50% 62%; }
+.t-dusk img { object-position: 50% 50%; }
+.t-dining { aspect-ratio: 3 / 2; }
+@media (min-width: 768px) {
+  .g-loop .g-tile, .g-dining .g-tile, .g-bath .g-tile { height: clamp(260px, 30vw, 560px); aspect-ratio: auto; }
+  .t-dining img { object-position: 50% 60%; }
+}
+
+.film { margin-top: clamp(56px, 7vw, 104px); }
+.film-poster { position: relative; display: block; width: 100%; aspect-ratio: 21 / 9; padding: 0; border: 0; overflow: hidden; cursor: pointer; background: var(--ink); }
+.film-poster picture, .film-poster img { width: 100%; height: 100%; }
+.film-poster img { object-fit: cover; object-position: 50% 45%; transition: transform .8s cubic-bezier(.2, .7, .2, 1); }
+.film-poster:hover img { transform: scale(1.015); }
+.film-plate { position: absolute; left: 16px; bottom: 16px; display: flex; align-items: center; gap: 14px; padding: 12px 22px 12px 12px; background: var(--surface); }
+.play { width: 48px; height: 48px; border-radius: 50%; background: var(--pause); display: grid; place-items: center; transition: background .15s; }
+.play svg { width: 17px; height: 17px; fill: var(--white); margin-left: 3px; }
+.film-poster:hover .play { background: var(--ink); }
+.film-t { font: 700 clamp(18px, 1.7vw, 24px)/1 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+.film-len { font: 400 13px/1 var(--mono); color: var(--muted); }
+
+/* roles: a segmented pill control, deep-linkable (#for-architects ...) */
+.seg {
+  display: inline-flex; gap: 1px; padding: 0; max-width: 100%; overflow-x: auto; scrollbar-width: none;
+  background: var(--frame); border: 1px solid var(--frame); border-radius: 0; margin-bottom: clamp(28px, 3.6vw, 48px);
+}
+.seg::-webkit-scrollbar { display: none; }
+.tab {
+  flex: none; padding: 11px 22px; border: 0; border-radius: 0; background: var(--bg); cursor: pointer;
+  font: 500 15px/1.1 var(--body); color: var(--muted); white-space: nowrap; min-height: 44px;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.tab:focus-visible { outline-offset: 2px; }
+.seg .tab { scroll-margin-top: 20px; }   /* a deep link (#for-builders) keeps the pills off the nav's edge */
+.tabpanel { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cg); align-items: center; }
+.tabpanel:focus-visible { outline-offset: 8px; }
+/* r5-publish (item 7): the lede's style, not a second bold near-headline under the H2 */
+.role-line { grid-column: 1 / span 5; font: 400 clamp(18px, 1.5vw, 22px)/1.45 var(--body); color: var(--ink-2); text-wrap: balance; padding-right: 12px; max-width: 24em; }
+.role-fig { grid-column: 6 / -1; aspect-ratio: 3 / 2; overflow: hidden; background: var(--hair); }
+/* (the Artifact ships a bare img where the site ships a picture: every rule covers both) */
+.role-fig > picture, .role-fig > img, .role-fig > picture > img { width: 100%; height: 100%; }
+.role-fig > img, .role-fig > picture > img { object-fit: cover; }
+.role-pano, .role-sheet { overflow: visible; background: transparent; }
+.role-pano .pano { aspect-ratio: auto; height: 100%; }
+.role-sheet > img, .role-sheet > picture > img { object-fit: contain; }
+.role-sheet { border: 1px solid var(--hair); }
+
+/* pilot */
+.pilot { padding-bottom: var(--sec); }
+.pilot-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cg); align-items: start; }
+.pilot-copy { grid-column: 1 / span 5; min-width: 0; }
+.incl { margin-top: 28px; }
+.incl-h { font: 500 12.5px/1.2 var(--mono); letter-spacing: 0.01em; color: var(--link); margin-bottom: 12px; }   /* r6-qa: sentence case */
+.incl-list { border-top: 1px solid var(--hair-2); }
+.incl-list li { padding: 12px 0; border-bottom: 1px solid var(--hair-2); font: 400 16px/1.4 var(--body); color: var(--ink); }
+.next-line { margin-top: 22px; font: 400 16px/1.5 var(--body); color: var(--muted); max-width: 34em; }
+.pilot-card { grid-column: 7 / -1; min-width: 0; background: var(--surface); border: 1px solid var(--hair-2); padding: clamp(22px, 3vw, 44px); }
+.f-two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; min-width: 0; }
+.field label, .field .lbl { font: 500 14px/1.3 var(--body); color: var(--ink); }
+.opt { font-weight: 400; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field select, .field textarea {
+  width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--hair-2); border-radius: 0; background: var(--field);
+  color: var(--ink); font: 400 16px/1.4 var(--body); -webkit-appearance: none; appearance: none;
+}
+.field textarea { resize: vertical; min-height: 96px; }
+.field select { padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%231A1714' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+.field ::placeholder { color: var(--placeholder); opacity: 1; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--link); outline-offset: -1px; border-color: var(--link); }
+.field [aria-invalid="true"] { border-color: #A33A2B; }
+.err { font: 400 14px/1.4 var(--body); color: #A33A2B; }
+/* r5-polish-1 (items 6, 28): the file field is a secondary drop zone, not a copy of the hero CTA: a 1 px dashed #C3AF9A
+   border, no black border and no arrow cell; the document icon and one line. The send button below is the form's
+   widest and heaviest element. */
+.drop {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 10px 16px 10px 14px;
+  border: 1px dashed var(--frame); background: var(--field); color: var(--ink); cursor: pointer;
+}
+.drop:hover, .drop.over { background: var(--surface); border-color: var(--link); }
+.drop-ico { display: grid; place-items: center; flex: none; width: 24px; }
+.drop-ico svg { width: 22px; height: 22px; fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
+.drop-txt { min-width: 0; font: 400 15px/1.4 var(--body); color: var(--ink-2); }
+.file-in:focus-visible + .drop, .drop.ring { outline: 2px solid var(--link); outline-offset: 3px; }
+.file-chip { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 8px 8px 8px 10px; border: 1px solid var(--ink-2); background: var(--field); }
+.file-thumb { width: 52px; height: 40px; object-fit: cover; flex: none; border: 1px solid var(--hair); }
+.file-name { flex: 1; min-width: 0; font: 400 14px/1.3 var(--body); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-x { flex: none; border: 0; background: transparent; color: var(--link); font: 500 14px var(--body); cursor: pointer; padding: 10px; min-height: 44px; }
+.check { display: flex; align-items: flex-start; gap: 12px; margin: 4px 0 22px; }
+.check input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--ink-2); }
+.check label { font: 400 15px/1.45 var(--body); color: var(--ink); cursor: pointer; }
+.hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.f-foot { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: 4px; }
+.upload-submit { margin-top: 0; width: 100%; max-width: none; }
+/* r5: once the form has an endpoint the send button is the same solid terracotta button (white on #A6583D, 5.1:1); while it
+   has none it stays greyed out (disabled, above) */
+.pilot form { position: relative; }
+
+/* footer */
+.site-foot { border-top: 1px solid var(--hair-2); padding-block: 44px 40px; background: var(--bg); }
+.foot-row { display: flex; align-items: center; justify-content: space-between; gap: 20px 32px; flex-wrap: wrap; }
+.site-foot .wordmark { font-size: 16px; }
+.foot-links { display: flex; gap: 0 28px; flex-wrap: wrap; }
+.foot-links a { display: inline-flex; align-items: center; min-height: 44px; padding-block: 12px; font: 400 14px/1.4 var(--body); color: var(--ink-2); }
+.foot-links a:hover { color: var(--link); }
+.foot-links .foot-cta { color: var(--link); font-weight: 500; }
+.foot-c { font: 400 14px/1.4 var(--body); color: var(--muted); }
+.foot-note { font: 400 14px/1.5 var(--body); color: var(--muted); margin-top: 22px; }
+
+/* the phone CTA bar: shown after the hero and before the pilot form, as an instant state change (no animation) */
+.cta-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; background: var(--bg); border-top: 1px solid var(--nav-line);
+  padding: 10px var(--gut) calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.cta-bar .upload { margin: 0; width: 100%; max-width: none; }
+@media (min-width: 768px) { .cta-bar { display: none !important; } }
+
+/* static pages (privacy, terms, thank you) */
+.page .head-row { gap: 16px; }
+.page-main { min-height: 60vh; padding-bottom: var(--sec); }
+.page-wrap > * { max-width: 760px; }
+.page-text p { font: 400 17px/1.6 var(--body); color: var(--ink); margin-top: 18px; max-width: 38em; }
+.draft-note { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; font: 400 14px/1.4 var(--body); color: var(--muted); }
+.draft-tag { font: 500 12.5px/1 var(--mono); letter-spacing: 0.01em; color: var(--ink); border: 1px solid var(--ink-2); padding: 6px 8px; }   /* r6-qa: sentence case */
+.page-more { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px 32px; }   /* r6-publish (review fixes 1, 12) */
+
+/* dialogs */
+dialog.lb { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--night); color: var(--surface); overflow: hidden; }
+dialog.lb::backdrop { background: rgba(26, 23, 20, .7); }
+html.dlg-open { overflow: hidden; }
+.lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top, 0px)) clamp(16px, 7vw, 120px) calc(72px + env(safe-area-inset-bottom, 0px)); display: grid; place-items: center; }
+.lb-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.lb-count { position: absolute; left: 0; right: 0; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); text-align: center; font: 400 14px/1 var(--body); color: #CFC7C0; }
+.lb-btn { position: absolute; width: 48px; height: 48px; border-radius: 2px; display: grid; place-items: center; cursor: pointer; background: rgba(248, 246, 244, .1); border: 1px solid rgba(248, 246, 244, .35); color: var(--surface); }
+.lb-btn:hover { background: rgba(248, 246, 244, .2); }
+.lb-btn svg { width: 20px; height: 20px; fill: none; stroke: var(--surface); stroke-width: 1.6; }
+.lb-x { top: calc(14px + env(safe-area-inset-top, 0px)); right: 14px; }
+.lb-prev { left: clamp(8px, 2vw, 32px); top: 50%; margin-top: -24px; }
+.lb-next { right: clamp(8px, 2vw, 32px); top: 50%; margin-top: -24px; }
+.film-frame { width: min(100%, calc((100vh - 150px) * 16 / 9)); aspect-ratio: 16 / 9; background: #000000; }
+.film-frame video { width: 100%; height: 100%; }
+
+/* ---------- desktop hero (900 px and up): the wipe full-bleed, the copy in the left 40% over a warm scrim ---------- */
+/* r6-qa (rulings addendum): the two-column desktop layout starts at 768 px (phone rules only below 768), and the hero's
+   height is capped at min(88svh, 62.5vw), so a wide screen never shows a giant crop of the drawing */
+@media (min-width: 768px) {
+  .hero { min-height: min(88vh, 62.5vw); display: flex; align-items: center; --copy-w: clamp(300px, 29vw, 470px); }
+  .hero-wrap { position: relative; z-index: 2; pointer-events: none; }
+  .hero-copy { pointer-events: auto; max-width: var(--copy-w); padding-block: 32px 40px; }
+  .hero-media { position: absolute; inset: 0; --fl: .25; }
+  /* r5-publish (item 18): the paper sits only under the copy column (its right edge: the wrap's left edge + the gutter +
+     --copy-w, plus 20 px of air), then clears within 48 px, so from there to the split the drawing is at full strength */
+  .hero-media .scrim {
+    display: block; z-index: 1;
+    --copy-r: calc(max(0px, (100% - var(--wrap)) / 2 - var(--gut)) + var(--gut) + var(--copy-w));
+    background: linear-gradient(90deg, #F0ECE9 0, #F0ECE9 calc(var(--copy-r) + 20px), rgba(240, 236, 233, 0) calc(var(--copy-r) + 68px));
+  }
+}
+@supports (height: 1svh) { @media (min-width: 768px) { .hero { min-height: min(88svh, 62.5vw); } } }
+/* r5-publish (items 4, 17): until the 8K (6144 px) 360s exist, the 360 is not shown across the full measure: the role
+   tabs' layout, the heading and the Kitchen / Living room switch in columns 1-4, the view in columns 5-12 at 16:10 (about
+   840 px at 1440), opened at 85 degrees across (site.js PANO_WIDE_FOV). Upscale about 1.9x instead of about 3.3x. With the
+   finals: back to the full measure at 2:1 and 72 degrees (delete this block and PANO_WIDE_FOV). */
+@media (min-width: 1100px) {
+  .tour { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cg); align-items: center; }
+  .tour .row-head { grid-column: 1 / span 4; flex-direction: column; align-items: flex-start; justify-content: center; gap: 22px; margin: 0; padding-right: 12px; }
+  .tour .pano { grid-column: 5 / -1; aspect-ratio: 16 / 10; }
+}
+
+/* ---------- below 768 px (phones; r6-qa: was 900 px, the rulings addendum keeps tablets and side panels on the desktop
+   layout): the wipe first (full-bleed), then the copy; menu; strip carousel ---------- */
+@media (max-width: 767px) {
+  :root { --head-h: 72px; --sec: 64px; }
+  html { scroll-padding-top: calc(70px + env(safe-area-inset-top, 0px)); }   /* the phone nav is 71 px (58 + 10 + 2 + 1) */
+  .head-row { height: 58px; }
+  .site-head { padding-top: 10px; }
+  .nav { display: none; }
+  .menu-btn { display: grid; }
+  .wordmark { font-size: 15px; letter-spacing: 0.22em; margin-right: -0.22em; }
+  .hero { display: flex; flex-direction: column; }
+  .hero-media { order: -1; width: 100%; height: clamp(300px, 62vh, 150vw); }
+  .hero-media .frame { left: 0; }
+  @supports (width: 1cqw) {
+    .hero-media .frame { left: calc((100cqw - max(100cqw, 133.334cqh) * var(--z)) / 2); }
+  }
+  .hero-copy { padding-block: 28px 0; }
+  .hero-for { margin-bottom: 14px; }
+  .h1 { font-size: clamp(40px, 10.4vw, 64px); }
+  .lede { margin-top: 16px; }
+  .upload { margin-top: 24px; }
+  .mono-link { margin-top: 6px; }
+  .strip { padding-top: 64px; }
+  .strip .marker-top { margin-bottom: 20px; }
+  /* r6 (P2 17): the next card peeks by about 13.5 % of the screen (12-15 %), so the row reads as a carousel */
+  .steps {
+    --card-w: calc(86.5vw - var(--gut) - 16px);
+    display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); scroll-padding-inline: var(--gut); scrollbar-width: none;
+  }
+  .steps::-webkit-scrollbar { display: none; }
+  .step { flex: 0 0 var(--card-w); scroll-snap-align: start; background: var(--surface); border: 1px solid var(--hair); }
+  .step + .step::before { display: none; }
+  .step-m { order: -1; }
+  .step-h { margin: 0; padding: 16px 20px 0; }
+  .step .cap { margin: 6px 0 0; padding: 0 20px 18px; }
+  /* r6-qa / r6-publish: the '+ VR walkthrough' link and its Pilot badge sit inside the card, the link's 44 px tap area unclipped */
+  .step-vr { margin: -10px 20px 12px; }
+  .dots { display: flex; justify-content: center; gap: 0; margin-top: 8px; }
+  .dot { width: 44px; height: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+  .dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dot-off); }
+  .dot[aria-current="true"]::before { background: var(--ink); }
+  /* r5: half the air between the dots and the next section (the 44 px dots carry 18 px of it themselves) */
+  .strip + .sec { padding-top: 20px; }
+  .dl { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; margin-top: 32px; }
+  .reg, .tour { margin-top: 0; }
+  .gal { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; row-gap: 32px; }
+  .g-bleed, .g-loop, .g-dining, .g-bath, .g-dusk { grid-column: 1 / -1; }
+  .g-bath .t-bath { aspect-ratio: 4 / 5; }
+  .g-dusk .t-dusk { aspect-ratio: 3 / 2; }
+  .g-half { grid-column: span 1; }
+  .g-bleed .t-aerial { aspect-ratio: 3 / 2; }
+  .film-poster { aspect-ratio: 16 / 9; }
+  .role-line, .role-fig { grid-column: 1 / -1; }
+  .role-fig { margin-top: 24px; }
+  .pilot-copy, .pilot-card { grid-column: 1 / -1; }
+  .pilot-card { margin-top: 40px; }
+}
+@supports (height: 1svh) { @media (max-width: 767px) { .hero-media { height: clamp(300px, 62svh, 150vw); } } }
+/* r5-qa: a short phone screen (the claude.ai viewer leaves about 390 x 560): the headline's three lines end on the first
+   screen instead of being cut by its bottom edge */
+
+/* r6: two cards and the same 13.5 % peek on wide phones */
+@media (min-width: 560px) and (max-width: 767px) {
+  .steps { --card-w: calc((86.5vw - var(--gut) - 32px) / 2); }
+}
+@media (max-width: 767px) {
+  /* r5-qa (lead addendum 2, from the user's iPhone screenshots): on phones the top nav is NOT sticky. A 70 px bar over a
+     ~560 px viewer screen left half-cut bands of captions and photos just under it, which read as a strip. It now scrolls
+     away with the page (the menu stays at the top of the page; the bottom CTA bar gives the action), so nothing is ever cut
+     under a fixed bar at the top. Desktop and tablets keep the sticky, opaque nav. */
+  .site-head { position: relative; top: auto; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  /* r5-publish (item 13): the phone pair is a 1:1 frame (the house fills its upper middle; no pine trunk). The box is
+     1:1 where the screen is tall enough; on a shorter screen (the claude.ai viewer leaves ~390 x 560) it gives up height
+     first, so the headline and the bottom CTA bar both fit on the first screen; the frame then covers the box, lifted
+     8 % so the span stays in view. */
+  .hero-media { --z: 1; --ty: .08; height: clamp(220px, calc(100vh - 324px), 100vw); }
+  @supports (height: 1svh) { .hero-media { height: clamp(220px, calc(100svh - 324px), 100vw); } }
+  @supports (width: 1cqw) {
+    .hero-media .frame {
+      width: calc(max(100cqw, 100cqh) * var(--z)); height: calc(max(100cqw, 100cqh) * var(--z));
+      left: calc((100cqw - max(100cqw, 100cqh) * var(--z)) / 2);
+      /* the lift only uses the frame's spare height, so the image always reaches the bottom of its box */
+      top: calc(-1 * min(max(100cqw, 100cqh) * var(--z) * var(--ty), max(100cqw, 100cqh) * var(--z) - 100cqh));
+    }
+  }
+  .hero-media .clip-s .frame::after {
+    background:
+      linear-gradient(90deg, #F0ECE9 0%, rgba(240, 236, 233, 0) 6%),
+      linear-gradient(180deg, #F0ECE9 0%, rgba(240, 236, 233, 0) 6%, rgba(240, 236, 233, 0) 92%, #F0ECE9 100%);
+  }
+  .ov-d { display: none; }
+  .ov-m { display: block; }
+  .pano { aspect-ratio: 4 / 3; }
+  /* r5-publish (item 2): 16:9 on phones, the diamond window and one pier in view, less poche (both layers share the
+     position, so the drawing stays on the render) */
+  .reg-img { aspect-ratio: var(--ar-m, var(--ar, 16 / 9)); }
+  .reg-img img { object-position: var(--pos-m, var(--pos, 50% 50%)); }
+  .cmp-tag { bottom: 12px; }
+  /* r6 (step 12): four tabs; a 2 x 2 grid below 560 px, so no label ever touches its cell edge */
+  .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
+  .tab { padding: 10px 8px; font-size: 14px; }
+  /* r5-polish-1 (item 5): no card chrome on phones: the fields run the full width, the form starts right under the
+     sub line */
+  .pilot-card { border: 0; background: none; padding: 0; margin-top: 28px; }
+  .drop-txt { font-size: 14px; }
+  .film-plate { left: 10px; bottom: 10px; gap: 10px; padding: 7px 14px 7px 7px; }
+  .play { width: 34px; height: 34px; }
+  .play svg { width: 13px; height: 13px; margin-left: 2px; }
+  .film-t { font-size: 16px; }
+  .film-len { font-size: 12px; }
+}
+/* r5-qa / r5-publish: a short phone screen (the claude.ai viewer leaves about 390 x 560): image, the 'For architects' line,
+   the whole headline and the bottom CTA bar on the first screen; the lede starts under the bar, never half-cut above it */
+@media (max-width: 767px) and (max-height: 640px) {
+  .hero-copy { padding-top: 14px; }
+  .hero-for { margin-bottom: 10px; }
+  .hero-media { height: clamp(220px, calc(100vh - 316px), 100vw); }
+  @supports (height: 1svh) { .hero-media { height: clamp(220px, calc(100svh - 316px), 100vw); } }
+}
+@media (max-width: 599px) {
+  .hero-copy .upload { display: flex; width: 100%; }
+  .f-two { grid-template-columns: minmax(0, 1fr); }
+  /* r5-publish (item 12): the bath and the dusk each take the full width (no 160 px squares) */
+  .g-half { grid-column: 1 / -1; }
+  .g-half .t-bath { aspect-ratio: 4 / 5; }
+  .g-half .t-dusk { aspect-ratio: 3 / 2; }
+  .lb-stage { inset: calc(64px + env(safe-area-inset-top, 0px)) 8px calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .lb-prev, .lb-next { top: auto; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); margin-top: 0; }
+  .lb-count { bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+}
+/* narrow phones: the film card stays well under a fifth of the still (grok1-qa: it was 21% at 320 px) */
+@media (max-width: 419px) {
+  .film-plate { left: 8px; bottom: 8px; gap: 8px; padding: 5px 12px 5px 5px; }
+  .play { width: 30px; height: 30px; }
+  .play svg { width: 12px; height: 12px; }
+  .film-t { font-size: 15px; }
+  .film-len { font-size: 11px; }
+}
+/* very narrow phones */
+@media (max-width: 359px) {
+  .upload { padding: 0 18px; }
+  .drop-txt { font-size: 14px; }
+}
+/* ======================================================================================================================
+   ROUND 6 (owner r6-site): two doors, the pilot badge and the concept chip, the 02 option switch, the pilot row of What
+   you get, ServiceSection, the VR and drone loops, the founder card, the bridge band, builders.html, the pilot form,
+   the footer, the sticky CTA by audience. No scroll-driven motion: every change here is a click or an instant state.
+   ====================================================================================================================== */
+
+
+/* PilotBadge: slate outline and text with a dot, always a label (never colour alone), never green */
+.pb {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 28px; padding: 4px 10px; border: 1px solid var(--slate);
+  border-radius: 2px; color: var(--slate); background: transparent; font: 500 13px/1.2 var(--body); letter-spacing: 0;
+  white-space: nowrap; text-transform: none;
+}
+.pb-dot { display: inline-block; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--slate); }
+a.pb:hover { background: var(--slate-tint); }
+.pb-sm { min-height: 24px; padding: 3px 8px; font-size: 12.5px; gap: 6px; }
+/* ConceptLabel: the hint pills' recipe, top-left on every concept asset (HTML, never burned in) */
+.concept-chip, .opt-chip {
+  position: absolute; z-index: 2; left: 10px; top: 10px; pointer-events: none;
+  font: 500 12px/1 var(--mono); letter-spacing: 0.01em; color: var(--surface); background: var(--pause);
+  padding: 7px 10px; border-radius: 2px; white-space: nowrap;
+}
+.opt-chip { top: auto; bottom: 10px; }
+
+/* the eyebrow line of a service: the mono label, then the badge */
+.svc-eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 22px; }
+.svc-eyebrow .marker { color: var(--cta-ink); }
+
+/* ---------- two doors ---------- */
+.doors { padding-top: clamp(40px, 5vw, 72px); }
+.doors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cg); }
+.door {
+  position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 172px; padding: 24px 64px 24px 24px;
+  background: var(--surface); border: 1px solid var(--card-border); color: var(--ink);
+}
+.door:hover { border-color: var(--line); }
+.door:hover .door-go svg { transform: translateX(3px); }
+.door-eye { display: inline-flex; align-items: center; gap: 8px; color: var(--cta-ink); }
+.door-build .door-eye { color: var(--slate); }
+.door-t { font: 700 clamp(28px, 2.8vw, 40px)/1.05 var(--display); letter-spacing: -0.02em; color: var(--ink); }
+.door-d { font: 400 16px/1.45 var(--body); color: var(--muted); max-width: 30em; text-wrap: pretty; }
+.door-go { position: absolute; right: 20px; bottom: 20px; width: 28px; height: 28px; display: grid; place-items: center; }
+.door-go svg { width: 24px; height: 24px; fill: none; stroke: var(--cta-ink); stroke-width: 1.6; transition: transform .15s; }
+.door-build .door-go svg { stroke: var(--cta-ink); }   /* r6-publish (review fix 4): the link affordance is cta-ink; slate labels only */
+@media (max-width: 399px) { .doors-grid { grid-template-columns: minmax(0, 1fr); } .door { min-height: 0; } }
+
+/* ---------- 02 Concepts: one option at a time, an A B C D switch on the image ---------- */
+.cx { background: var(--hair); }
+.cx-opt { position: absolute; inset: 0; }
+.cx-opt picture, .cx-opt img { width: 100%; height: 100%; object-fit: cover; }
+.cx-chips { position: absolute; z-index: 2; left: 8px; bottom: 8px; display: flex; gap: 4px; }
+.cx-chip {
+  width: 36px; height: 36px; padding: 0; border: 0; border-radius: 2px; cursor: pointer;
+  background: var(--pause); color: var(--surface); font: 500 14px/1 var(--body);
+}
+.cx-chip:hover { background: rgba(26, 23, 20, .85); }
+.cx-chip[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-2); }
+.cx-chip:focus-visible { outline: 2px solid var(--surface); outline-offset: 2px; }
+@media (pointer: coarse), (max-width: 899px) { .cx-chip { width: 44px; height: 44px; } }
+.step-vr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 2px; }
+.step-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font: 500 15px/1.3 var(--body); color: var(--cta-ink); }
+.step-link:hover .arr { transform: translateX(3px); }
+.step-link .arr { transition: transform .15s; }
+
+/* ---------- What you get: the pilot row for builders and owners (separate from the one-model grid) ---------- */
+.dl-note { margin-top: 22px; font: 400 15px/1.5 var(--body); color: var(--muted); max-width: 46em; }
+.dl-pilot { margin-top: clamp(40px, 4.4vw, 64px); }
+.dl-pilot-h { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.dl-pilot-t { font: 700 clamp(19px, 1.6vw, 23px)/1.2 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+.dl-2 { margin-top: 20px; }
+.dl-2 li { border-top-color: var(--slate); padding-top: 0; }
+.dl-2 a { display: flex; flex-direction: column; gap: 8px; padding-top: 18px; height: 100%; color: inherit; }
+.dl-2 a:hover .dl-t { color: var(--cta-ink); }
+.dl-arr { color: var(--cta-ink); display: inline-block; transition: transform .15s; }
+.dl-t .nw { white-space: nowrap; }   /* the arrow never wraps onto a line of its own */
+.dl-2 a:hover .dl-arr { transform: translateX(3px); }
+.dl-2 .pb { align-self: flex-start; margin-top: 4px; }
+
+/* ---------- ServiceSection ---------- */
+/* desktop: the eyebrow, the heading block and the bullets in columns 1-5, the media beside them in 7-12; phones (DOM
+   order): the eyebrow, the heading block, the media, the bullets.
+   r6-publish (review fixes 3, 8): the eyebrow is its own row; the media is top-aligned with the eyebrow (builders) and
+   the last row takes any extra height (1fr), so a tall picture never opens a gap between the headline and the bullets;
+   .svc-left (CA/PM) puts the media on the left, so /builders alternates right, left, right; the VR clip (home) starts at
+   the headline and takes 7 of the 12 columns. */
+.svc-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; column-gap: var(--cg); }
+.svc-grid > .svc-eyebrow { grid-column: 1 / span 5; grid-row: 1; min-width: 0; }
+.svc-head { grid-column: 1 / span 5; grid-row: 2; align-self: start; min-width: 0; }
+.svc-body { grid-column: 1 / span 5; grid-row: 3; align-self: start; min-width: 0; }
+.svc-media { grid-column: 7 / -1; grid-row: 1 / span 3; align-self: start; min-width: 0; }
+.svc-left .svc-media { grid-column: 1 / span 6; }
+.svc-left .svc-grid > .svc-eyebrow, .svc-left .svc-head, .svc-left .svc-body { grid-column: 8 / -1; }
+#vr .svc-media { grid-column: 6 / -1; grid-row: 2 / span 2; }
+.svc-nomedia .svc-grid > .svc-eyebrow, .svc-nomedia .svc-head, .svc-nomedia .svc-body { grid-column: 1 / span 8; }
+.svc .sub { max-width: 32em; }
+.svc-aud { margin-top: 14px; font: 500 16px/1.45 var(--body); color: var(--ink-2); }
+.svc-bl { margin-top: 26px; font: 500 12.5px/1.2 var(--mono); color: var(--muted); }
+.svc-list { margin-top: 12px; border-top: 1px solid var(--line-2); }
+.svc-bl + .svc-list { margin-top: 10px; }
+.svc-body > .svc-list:first-child { margin-top: 26px; }
+.svc-list li { position: relative; padding: 12px 0 12px 22px; border-bottom: 1px solid var(--line-2); font: 400 16px/1.45 var(--body); color: var(--ink); }
+.svc-list li::before { content: ""; position: absolute; left: 2px; top: 22px; width: 8px; height: 2px; background: var(--cta-ink); }
+.svc-cta { margin-top: 18px; }
+.mfig { position: relative; overflow: hidden; background: var(--hair); }
+.mfig picture, .mfig img { width: 100%; height: 100%; }
+.mfig img { object-fit: cover; }
+.mfig.is-sheet { background: var(--surface); border: 1px solid var(--hair); }
+.mfig.is-sheet img { object-fit: contain; }
+.gnn { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--cg); margin-top: clamp(40px, 4.4vw, 64px); }
+.gnn-c { padding-top: 16px; border-top: 1px solid var(--ink-2); min-width: 0; }
+.gnn-h { font: 700 17px/1.25 var(--display); letter-spacing: -0.01em; color: var(--ink); }
+.gnn-c ul { margin-top: 10px; }
+.gnn-c li { padding: 6px 0; font: 400 16px/1.45 var(--body); color: var(--ink-2); }
+.svc-trust { margin-top: 24px; font: 400 16px/1.5 var(--body); color: var(--muted); }
+.svc-fine { margin-top: 6px; font: 400 15px/1.5 var(--body); color: var(--muted); }
+
+/* ---------- the round-6 loops (VR A/B, drone) and their fallbacks ---------- */
+.vid { position: relative; overflow: hidden; background: var(--hair); aspect-ratio: var(--ar, 16 / 9); }
+.vid .lv, .vid .still, .vid-still picture, .vid-still img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vid .still img, .vid .still picture { width: 100%; height: 100%; object-fit: cover; }
+.vid-pair { aspect-ratio: auto; background: transparent; overflow: visible; }
+.vpair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vpair-i { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--hair); }
+.vpair-i picture, .vpair-i img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 767px) { .vid { aspect-ratio: var(--ar-m, var(--ar, 16 / 9)); } }
+
+/* ---------- Sample: the film as a small pill ---------- */
+.film-pill {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; min-height: 44px; padding: 5px 16px 5px 5px;
+  border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); cursor: pointer; color: var(--ink);
+}
+.film-pill:hover { border-color: var(--ink-2); }
+.film-pill .play { width: 34px; height: 34px; }
+.film-pill .play svg { width: 12px; height: 12px; margin-left: 2px; }
+.film-pill .film-t { font: 500 15px/1 var(--body); letter-spacing: 0; }
+.film-pill .film-len { font-size: 12.5px; }
+.film-pill:hover .play { background: var(--ink); }
+
+/* ---------- Who it's for: the copy column holds the line and its links ---------- */
+.role-copy { grid-column: 1 / span 5; min-width: 0; padding-right: 12px; }
+.role-copy .role-line { padding-right: 0; }
+.role-copy .mono-link { display: flex; width: max-content; max-width: 100%; margin-top: 8px; }
+.role-copy .role-line + .mono-link { margin-top: 18px; }
+.role-fig { position: relative; }
+
+/* ---------- founder card ---------- */
+.fc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; padding: clamp(24px, 3vw, 40px); background: var(--surface); border: 1px solid var(--card-border); }
+.fc-nophoto { grid-template-columns: minmax(0, 1fr); }
+.fc-photo { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; }
+.fc .marker-top { margin-bottom: 14px; }
+.fc-cred { margin-top: 10px; font: 400 16px/1.5 var(--body); color: var(--ink-2); }
+.fc .mono-link { margin-top: 8px; }
+@media (min-width: 768px) {
+  .fc-txt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--cg); align-items: end; }
+  .fc-txt .marker-top { grid-column: 1; grid-row: 1; }
+  .fc-name { grid-column: 1; grid-row: 2; }
+  .fc-cred { grid-column: 2; grid-row: 2; margin: 0; align-self: end; }
+  .fc-txt .mono-link { grid-column: 2; grid-row: 3; }
+}
+
+/* ---------- bridge band ---------- */
+.bridge { padding-top: clamp(40px, 4.4vw, 64px); }
+.bridge-link {
+  display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 16px 20px; border-top: 1px solid var(--slate);
+  border-bottom: 1px solid var(--line-2); color: var(--ink); font: 500 clamp(17px, 1.4vw, 20px)/1.4 var(--body);
+}
+.bridge-link .arr { color: var(--cta-ink); margin-left: auto; transition: transform .15s; }   /* r6-publish (review fix 4) */
+.bridge-link:hover .arr { transform: translateX(3px); }
+
+/* ---------- builders.html ---------- */
+.bhero { padding-block: clamp(32px, 4vw, 64px) 0; }
+.bhero-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cg); align-items: center; }
+.bhero-copy { grid-column: 1 / span 5; grid-row: 1; min-width: 0; }
+.bhero-media { grid-column: 6 / -1; grid-row: 1; min-width: 0; }
+.h1-b { font-size: clamp(40px, 5vw, 76px); }
+.bhero .lede { max-width: 30em; }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; margin-top: 32px; }
+.cta-row .upload, .cta-row .mono-link { margin-top: 0; }
+.trust { padding-top: clamp(40px, 4.4vw, 64px); }
+.trust-line {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: var(--slate-tint); color: var(--ink);
+  font: 500 clamp(16px, 1.3vw, 18px)/1.45 var(--body); border-left: 2px solid var(--slate);
+}
+.trust-ico { flex: none; display: grid; place-items: center; width: 24px; height: 24px; }
+.trust-ico svg { width: 22px; height: 22px; fill: none; stroke: var(--slate); stroke-width: 1.5; }
+.p3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--cg); margin-top: clamp(32px, 4vw, 56px); counter-reset: none; }
+.p3 li { padding-top: 18px; border-top: 1px solid var(--ink-2); min-width: 0; }
+.p3-n { font: 700 clamp(28px, 2.6vw, 38px)/1 var(--display); color: var(--cta-ink); font-variant-numeric: tabular-nums; }
+.p3-t { margin-top: 14px; font: 700 clamp(19px, 1.6vw, 23px)/1.2 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+.p3-d { margin-top: 8px; font: 400 16px/1.5 var(--body); color: var(--muted); }
+
+/* ---------- the pilot form ---------- */
+.req-note { margin-bottom: 16px; font: 400 14px/1.4 var(--body); color: var(--muted); }
+.req { color: var(--cta-ink); }
+.help { font: 400 14px/1.4 var(--body); color: var(--muted); }
+.fs { border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+.fs legend { padding: 0; margin-bottom: 10px; font: 500 14px/1.3 var(--body); color: var(--ink); }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.ck { position: relative; display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 0; cursor: pointer; }
+.ck input { position: absolute; opacity: 0; width: 22px; height: 22px; margin: 0; left: 0; top: 10px; cursor: pointer; }
+.ck-box { flex: none; width: 22px; height: 22px; margin-top: 0; border: 1.5px solid var(--check-border); border-radius: 2px; background: var(--field); display: grid; place-items: center; }
+.ck-box::after { content: ""; width: 11px; height: 6px; border-left: 2px solid var(--white); border-bottom: 2px solid var(--white); transform: translateY(-1px) rotate(-45deg); opacity: 0; }
+.ck input:checked + .ck-box { background: var(--ink); border-color: var(--ink); }
+.ck input:checked + .ck-box::after { opacity: 1; }
+.ck input:focus-visible + .ck-box { outline: 2px solid var(--cta-ink); outline-offset: 2px; }
+.ck-t { font: 400 16px/1.4 var(--body); color: var(--ink); padding-top: 1px; }
+.fs[aria-invalid="true"] .ck-box { border-color: #A33A2B; }
+.js .upl:not(.on) { display: none; }
+.upl .err { margin-top: 2px; }
+.consent { margin: 4px 0 16px; font: 400 16px/1.5 var(--body); color: var(--muted); }
+.consent a { text-decoration: underline; text-underline-offset: 2px; }
+.f-foot .next-line { margin-top: 2px; }
+.err-send a { color: #A33A2B; text-decoration: underline; }
+.spin { display: none; width: 18px; height: 18px; border: 2px solid rgba(255, 255, 255, .45); border-top-color: var(--white); border-radius: 50%; animation: sp-spin .8s linear infinite; }
+.upload[aria-busy="true"] .spin { display: inline-block; }
+@keyframes sp-spin { to { transform: rotate(360deg); } }
+.upload-submit { min-height: 56px; }
+
+/* ---------- footer (round 6, step 10) ---------- */
+.foot-base { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 28px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--card-border); }
+.foot-contact, .foot-legal { display: flex; flex-wrap: wrap; gap: 0 22px; }
+.foot-contact a, .foot-legal a, .foot-contact span { display: inline-flex; align-items: center; min-height: 44px; font: 400 14px/1.4 var(--body); color: var(--ink-2); }
+.foot-contact a:hover, .foot-legal a:hover { color: var(--cta-ink); }
+.foot-base .foot-c { margin-right: auto; }
+.foot-contact + .foot-c { margin-right: 0; }
+
+/* ---------- phones (r6-qa: was 900 px; tablets keep the two-column layout, tuned below) ---------- */
+@media (max-width: 767px) {
+  .role-copy { grid-column: 1 / -1; }
+  /* r6-qa: stretch (the desktop rule's align-self: center collapsed the media to 0 px wide in the phone column: the VR clip
+     and the builders' stills were invisible on phones) */
+  .svc-media { margin: 28px 0 0; align-self: stretch; }
+  .svc-grid { display: flex; flex-direction: column; align-items: stretch; }
+  .bhero-grid { display: flex; flex-direction: column; align-items: stretch; }
+  .bhero-media { margin-inline: calc(-1 * var(--gut)); }
+  .bhero-copy { padding-top: 28px; }
+  /* the user's short viewer (390 x 560): the picture gives up height first, so the eyebrow and the whole headline end above
+     the sticky bar on the first screen (as on the home page) */
+  .bhero-media .vid { width: 100%; max-height: max(200px, calc(100vh - 322px)); }
+  @supports (height: 1svh) { .bhero-media .vid { max-height: max(200px, calc(100svh - 322px)); } }
+  .bhero { padding-top: 0; }
+  .gnn { grid-template-columns: minmax(0, 1fr); row-gap: 24px; }
+  .p3 { grid-template-columns: minmax(0, 1fr); row-gap: 24px; }
+  .role-copy .mono-link { margin-top: 2px; }
+}
+@media (max-width: 767px) {
+  /* the sticky CTA bar: main keeps its height plus 16 px free at the bottom, so it never covers the last heading */
+  main { padding-bottom: calc(77px + 16px + env(safe-area-inset-bottom, 0px)); }   /* the bar: 10 + 56 + 10 px + its 1 px rule */
+  .door { padding: 20px 56px 20px 20px; min-height: 150px; }
+  .checks { grid-template-columns: minmax(0, 1fr); }
+  .fc { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 22px; }
+  .bridge-link { padding: 16px 4px; }
+  .concept-chip, .opt-chip { font-size: 11.5px; padding: 6px 9px; }
+}
+@media (max-width: 559px) {
+  .seg { grid-template-columns: 1fr 1fr; }
+  .bhero-copy .cta-row { flex-direction: column; align-items: stretch; gap: 6px; margin-top: 24px; }
+  .bhero-copy .upload { display: flex; width: 100%; }
+  .bhero-copy .cta-row .mono-link { align-self: flex-start; }
+}
+@media (min-width: 768px) { main { padding-bottom: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ======================================================================================================================
+   r6-qa (ROUND6_RULINGS.md addendum, binding): tablets and the claude.ai side panel (768-1099 px) get a tuned two-column
+   desktop layout, never the phone layout; wide monitors (1680 px and up) grow the measure (:root --wrap) and the type.
+   ====================================================================================================================== */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .nav-list { gap: clamp(14px, 1.9vw, 22px); }
+  .nav-div { margin-inline: clamp(14px, 1.9vw, 22px); }
+  .wordmark { font-size: 16px; letter-spacing: 0.2em; margin-right: -0.2em; }
+  /* How it works: three cards, then two (five columns are too narrow for the titles below 1100 px) */
+  .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 44px; }
+  .step:nth-child(3n+1)::before { display: none; }
+  /* ServiceSection and the builders hero: text and media half and half */
+  .svc-grid > .svc-eyebrow, .svc-head, .svc-body { grid-column: 1 / span 6; padding-right: 8px; }
+  .svc-media, #vr .svc-media { grid-column: 7 / -1; }
+  .svc-left .svc-media { grid-column: 1 / span 6; }
+  .svc-left .svc-grid > .svc-eyebrow, .svc-left .svc-head, .svc-left .svc-body { grid-column: 7 / -1; padding-right: 0; padding-left: 8px; }
+  .bhero-copy { grid-column: 1 / span 6; }
+  .bhero-media { grid-column: 7 / -1; }
+  /* Who it's for and the form: the copy in five columns, the picture or the form card in seven; one field per row */
+  .role-copy, .role-line { grid-column: 1 / span 5; }
+  .role-fig { grid-column: 6 / -1; }
+  .pilot-copy { grid-column: 1 / span 5; }
+  .pilot-card { grid-column: 6 / -1; }
+  .f-two, .checks { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 1680px) {
+  .hero { --copy-w: clamp(470px, 25vw, 660px); }
+  .h1 { font-size: clamp(88px, 4.7vw, 124px); }
+  .h2 { font-size: clamp(66px, 3.5vw, 92px); }
+  .h3 { font-size: clamp(30px, 1.6vw, 40px); }
+  .h1-b { font-size: clamp(76px, 4vw, 104px); }
+  .sub { font-size: clamp(19px, 1.05vw, 24px); }
+  .lede { font-size: clamp(20px, 1.05vw, 26px); }
+  .marker { font-size: clamp(12.5px, 0.66vw, 16px); }
+  .step-h { font-size: clamp(27px, 1.45vw, 36px); }
+  .dl-t, .dl-pilot-t, .p3-t { font-size: clamp(23px, 1.25vw, 30px); }
+  .dl-d, .svc-list li, .door-d, .gnn-c li, .p3-d, .fc-cred, .svc-trust { font-size: clamp(16px, 0.86vw, 19px); }
+  .role-line { font-size: clamp(22px, 1.15vw, 28px); }
+  .door-t { font-size: clamp(40px, 2.2vw, 54px); }
+  .gnn-h { font-size: clamp(17px, 0.95vw, 21px); }
+  .nav a, .nav .nav-cta { font-size: clamp(15px, 0.8vw, 18px); }
+  .cap, .step .cap { font-size: clamp(15px, 0.78vw, 18px); }
+  .bridge-link { font-size: clamp(20px, 1.05vw, 24px); }
+  .mono-link { font-size: clamp(15px, 0.8vw, 19px); }
+  .svc-aud { font-size: clamp(16px, 0.86vw, 19px); }
+  .upload { font-size: clamp(16px, 0.82vw, 19px); min-height: clamp(56px, 2.9vw, 68px); }
+  .pb { font-size: clamp(13px, 0.68vw, 15.5px); }
+  .trust-line { font-size: clamp(18px, 0.95vw, 22px); }
+  .concept-chip, .opt-chip, .cmp-hint, .pano-hint { font-size: clamp(12px, 0.6vw, 15px); padding: 0.6em 0.85em; }
+  .room, .tab { font-size: clamp(15px, 0.75vw, 18px); }
+}
+/* ======================================================================================================================
+   r6-publish (1 Nov 2026): the review panel's last fixes. No scroll-driven motion: hover and instant states only.
+   ====================================================================================================================== */
+/* review fix 14: one plain line under the builders H1 that names the three tools */
+.bhero-tools { margin-top: 18px; font: 500 clamp(18px, 1.4vw, 21px)/1.4 var(--body); color: var(--ink-2); max-width: 30em; text-wrap: pretty; }
+.bhero-tools + .lede { margin-top: 14px; }
+@media (min-width: 1680px) { .bhero-tools { font-size: clamp(21px, 1.1vw, 26px); } }
+/* review fix 17: the home form's left column carries the three approved pilot steps (desktop and tablet; phones go
+   straight to the form) */
+.pilot-steps { display: none; }
+@media (min-width: 768px) {
+  .pilot-steps { display: block; margin-top: clamp(28px, 3vw, 44px); border-top: 1px solid var(--ink-2); max-width: 30em; }
+  .pilot-steps li { display: flex; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+  .ps-n { flex: none; min-width: 1.1em; font: 700 clamp(22px, 1.8vw, 30px)/1 var(--display); color: var(--cta-ink); font-variant-numeric: tabular-nums; }
+  .ps-t { font: 700 clamp(18px, 1.5vw, 23px)/1.25 var(--display); letter-spacing: -0.012em; color: var(--ink); }
+}
+/* review fix 16: the approved trust line under each upload */
+.upl-trust { margin-top: 8px; }
